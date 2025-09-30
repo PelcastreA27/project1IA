@@ -1,0 +1,41 @@
+import OpenAI from "openai";
+import readlineSync from "readline-sync";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY as string, // forzamos string
+});
+
+async function main(): Promise<void> {
+  console.log("🚀 Mini práctica IA con TypeScript");
+  console.log("Escribe 'salir' para terminar.\n");
+
+  while (true) {
+    const userInput: string = readlineSync.question("Tú: ");
+
+    if (userInput.toLowerCase() === "salir") {
+      console.log("👋 ¡Hasta luego!");
+      break;
+    }
+
+    try {
+      const completion = await client.chat.completions.create({
+        model: "gpt-4o-mini", // puedes usar "gpt-4o-mini" o "gpt-3.5-turbo"
+        messages: [{ role: "user", content: userInput }],
+      });
+
+      const respuesta = completion.choices[0]?.message?.content ?? "Sin respuesta";
+      console.log("🤖 IA:", respuesta, "\n");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("❌ Error:", error.message);
+      } else {
+        console.error("❌ Error desconocido:", error);
+      }
+    }
+  }
+}
+
+main();
